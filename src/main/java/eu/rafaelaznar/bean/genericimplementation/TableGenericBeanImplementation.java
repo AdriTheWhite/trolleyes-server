@@ -34,6 +34,10 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import eu.rafaelaznar.bean.publicinterface.GenericBeanInterface;
+import eu.rafaelaznar.helper.EncodingUtilHelper;
+import eu.rafaelaznar.helper.Log4jConfigurationHelper;
+import java.lang.reflect.Field;
+import java.util.Date;
 
 public abstract class TableGenericBeanImplementation extends ViewGenericBeanImplementation implements GenericBeanInterface {
 
@@ -57,18 +61,87 @@ public abstract class TableGenericBeanImplementation extends ViewGenericBeanImpl
     }
 
     @Override
-    public String getColumns() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public String getColumns() throws Exception {
+        String strColumns = "";
+        try {
+            TableGenericBeanImplementation oBean = (TableGenericBeanImplementation) Class.forName(this.getClass().getName()).newInstance();
+            Field[] oFields = oBean.getClass().getDeclaredFields();
+            for (Field oField : oFields) {
+                if (!oField.getName().startsWith("obj_")) {
+                    strColumns += oField.getName() + ",";
+                }
+            }
+            if (!strColumns.equals("")) {
+                strColumns = strColumns.substring(0, strColumns.length() - 1);
+            }
+        } catch (Exception ex) {
+            String msg = this.getClass().getName() + ":" + (ex.getStackTrace()[0]).getMethodName();
+            Log4jConfigurationHelper.errorLog(msg, ex);
+            throw new Exception(msg, ex);
+        }
+        return strColumns;
+    }
+
+     @Override
+    public String getValues() throws Exception {
+        String strColumns = "";
+        try {
+            TableGenericBeanImplementation oBean = (TableGenericBeanImplementation) Class.forName(this.getClass().getName()).newInstance();
+            Field[] oFields = oBean.getClass().getDeclaredFields();
+            for (Field oField : oFields) {
+                oField.setAccessible(true);
+                if (!oField.getName().startsWith("obj_")) {
+                    if (oField.getName().equals("password")) {
+                        strColumns += EncodingUtilHelper.quotate("da8ab09ab4889c6208116a675cad0b13e335943bd7fc418782d054b32fdfba04") + ",";
+                    } else {
+                        if (oField.getType() == String.class) {
+                            strColumns += EncodingUtilHelper.quotate((String) oField.get(this)) + ",";
+                        } else {
+                            if (oField.getType() == Date.class) {
+                                strColumns += EncodingUtilHelper.stringifyAndQuotate((Date) oField.get(this)) + ",";
+                            } else {
+                                if (oField.getType() == Integer.class) {
+                                    strColumns += (Integer) oField.get(this) + ",";
+                                } else {
+                                    if (oField.getType() == Double.class) {
+                                        strColumns += (Double) oField.get(this) + ",";
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                oField.setAccessible(false);
+            }
+            if (!strColumns.equals("")) {
+                strColumns = strColumns.substring(0, strColumns.length() - 1);
+            }
+        } catch (Exception ex) {
+            String msg = this.getClass().getName() + ":" + (ex.getStackTrace()[0]).getMethodName();
+            Log4jConfigurationHelper.errorLog(msg, ex);
+            throw new Exception(msg, ex);
+        }
+        return strColumns;
     }
 
     @Override
-    public String getValues() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public String toPairs() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public String toPairs() throws Exception {
+     String strColumns = "";
+        try {
+            TableGenericBeanImplementation oBean = (TableGenericBeanImplementation) Class.forName(this.getClass().getName()).newInstance();
+            Field[] oFields = oBean.getClass().getDeclaredFields();
+            for (Field oField : oFields) {
+                
+            }
+            if (!strColumns.equals("")) {
+                strColumns = strColumns.substring(0, strColumns.length() - 1);
+            }
+        } catch (Exception ex) {
+            String msg = this.getClass().getName() + ":" + (ex.getStackTrace()[0]).getMethodName();
+            Log4jConfigurationHelper.errorLog(msg, ex);
+            throw new Exception(msg, ex);
+        }
+        return strColumns;
     }
 
 }
